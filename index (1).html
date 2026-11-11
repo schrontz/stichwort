@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#14121f">
+<title>Stichwort Textlernhilfe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap" rel="stylesheet">
+<style>
+/* Layout: eine schmale Spalte wie ein Soufflierbuch. Oben klebt der Status, unten die vier Knöpfe,
+   dazwischen läuft der Text durch. Farben nach Bühnenlicht: Kongoblau als Akzent, Bernstein fürs Stichwort. */
+:root{
+  --bg:#f2f1f6;
+  --surface:#ffffff;
+  --ink:#1c1a2b;
+  --muted:#65627a;
+  --rule:#d9d6e4;
+  --accent:#3d2fb0;
+  --accent-ink:#ffffff;
+  --cue:#9a5800;
+  --cue-bg:#fcefd6;
+  --ok:#1b7a4b;
+  --miss:#b3261e;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible","Segoe UI",Roboto,system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#14121f;
+    --surface:#1d1a2d;
+    --ink:#eceaf6;
+    --muted:#a29eba;
+    --rule:#353049;
+    --accent:#9d93ff;
+    --accent-ink:#14121f;
+    --cue:#f5b041;
+    --cue-bg:#33270f;
+    --ok:#5fd39a;
+    --miss:#ff8a80;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14121f;
+  --surface:#1d1a2d;
+  --ink:#eceaf6;
+  --muted:#a29eba;
+  --rule:#353049;
+  --accent:#9d93ff;
+  --accent-ink:#14121f;
+  --cue:#f5b041;
+  --cue-bg:#33270f;
+  --ok:#5fd39a;
+  --miss:#ff8a80;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5;-webkit-text-size-adjust:100%}
+[hidden]{display:none !important}
+button,select,textarea,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.view{max-width:640px;margin:0 auto;padding:0 18px}
+
+/* ---------- Einrichtung ---------- */
+#setup{counter-reset:step}
+.mast{padding:36px 0 8px}
+.eyebrow{margin:0;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(2.6rem,11vw,3.6rem);line-height:1;margin:.1em 0 .25em;letter-spacing:-.02em;text-wrap:balance}
+h1 span{color:var(--accent)}
+.lede{margin:0;max-width:34em;color:var(--muted)}
+.step{counter-increment:step;border-top:1px solid var(--rule);padding:22px 0;display:flex;flex-direction:column;gap:12px}
+.mast + .step{margin-top:22px}
+h2{font-family:var(--display);font-weight:700;font-size:1.25rem;margin:0;display:flex;align-items:baseline;gap:10px}
+h2::before{content:counter(step);font-variant-numeric:tabular-nums;color:var(--accent);font-size:.95rem}
+.help{margin:0;font-size:.9rem;color:var(--muted)}
+.help code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:1px 5px}
+textarea{width:100%;min-height:230px;resize:vertical;background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:12px 14px;line-height:1.45;font-size:.95rem}
+.row{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center}
+.link{background:none;border:0;padding:6px 0;color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.roles{display:flex;flex-wrap:wrap;gap:8px}
+.role{position:relative}
+.role input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.role span{display:flex;gap:8px;align-items:baseline;border:1.5px solid var(--rule);background:var(--surface);border-radius:999px;padding:8px 14px;font-weight:700;letter-spacing:.02em}
+.role small{font-weight:400;color:var(--muted);letter-spacing:0;font-variant-numeric:tabular-nums}
+.role input:checked + span{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.role input:checked + span small{color:inherit;opacity:.8}
+.role input:focus-visible + span{outline:3px solid var(--accent);outline-offset:2px}
+.scenes{display:flex;flex-direction:column}
+.scene{display:flex;align-items:center;gap:12px;padding:9px 2px;border-bottom:1px solid var(--rule)}
+.scene:last-child{border-bottom:0}
+.scene input{width:20px;height:20px;accent-color:var(--accent);flex:none}
+.scene span{flex:1;min-width:0;overflow-wrap:anywhere}
+.scene small{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.scene.none span{color:var(--muted)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 18px}
+.opt{display:flex;flex-direction:column;gap:4px;font-size:.9rem;color:var(--muted)}
+select,input[type=password]{width:100%;background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;color:var(--ink);font-size:1rem}
+.note{margin:0;font-size:.9rem;color:var(--muted);border-left:3px solid var(--cue);padding:2px 0 2px 12px}
+.sub{display:flex;flex-direction:column;gap:12px}
+.sec{border:1.5px solid var(--accent);background:none;color:var(--accent);border-radius:10px;padding:11px 16px;font-weight:700}
+details summary{cursor:pointer;color:var(--accent);padding:4px 0}
+.vlist{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:8px 12px;align-items:center;padding-top:10px}
+.vlist label{font-weight:700;font-size:.92rem;overflow-wrap:anywhere}
+.go{position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg) 30%);padding:26px 0 18px}
+.big{width:100%;border:0;border-radius:10px;background:var(--accent);color:var(--accent-ink);font-family:var(--display);font-weight:700;font-size:1.15rem;padding:16px}
+.big:disabled{opacity:.4;cursor:not-allowed}
+
+/* ---------- Probe ---------- */
+.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--rule);margin:0 -18px;padding:10px 18px}
+.toprow{display:flex;align-items:center;gap:12px}
+.ghost{background:none;border:1px solid var(--rule);border-radius:8px;padding:6px 12px;font-size:.9rem}
+.status{flex:1;display:flex;align-items:center;gap:8px;font-weight:700;min-width:0}
+.status span:last-child{overflow-wrap:anywhere}
+.dot{flex:none;width:11px;height:11px;border-radius:50%;background:var(--muted)}
+.dot.listening{background:var(--miss);animation:pulse 1.1s ease-in-out infinite}
+.dot.speaking{background:var(--cue)}
+.dot.ok{background:var(--ok)}
+@keyframes pulse{50%{transform:scale(1.5);opacity:.55}}
+@media (prefers-reduced-motion:reduce){.dot.listening{animation:none}}
+.count{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem;white-space:nowrap}
+.live{padding-top:10px;display:flex;flex-direction:column;gap:6px}
+.meter{position:relative;height:7px;background:var(--rule);border-radius:4px}
+.meter > div:first-child{height:100%;width:0;background:var(--accent);border-radius:4px;transition:width .15s}
+.meter > div.ok{background:var(--ok)}
+#meterTick{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+#heard{margin:0;font-size:.85rem;color:var(--muted);min-height:1.3em;overflow-wrap:anywhere}
+.script{padding:14px 0 150px;display:flex;flex-direction:column;gap:2px}
+.ln{display:block;width:100%;text-align:left;background:none;border:0;border-left:4px solid transparent;border-radius:0 8px 8px 0;padding:9px 12px 9px 14px}
+.ln .who{display:block;font-size:.72rem;font-weight:700;letter-spacing:.1em;color:var(--muted)}
+.ln .txt{display:block;font-size:1.08rem;overflow-wrap:anywhere}
+.ln.mine{border-left-color:var(--accent)}
+.ln.mine .who{color:var(--accent)}
+.ln.cur{background:var(--cue-bg);border-left-color:var(--cue)}
+.ln.cur .who{color:var(--cue)}
+.ln.off{opacity:.35}
+.ln.flag .who::after{content:" · Hänger";color:var(--miss)}
+.dir{padding:6px 12px 6px 18px;font-style:italic;font-size:.92rem;color:var(--muted);overflow-wrap:anywhere}
+.sc{font-family:var(--display);font-weight:700;font-size:1.05rem;padding:22px 12px 6px 18px;border-top:1px solid var(--rule);margin-top:12px}
+.sc:first-child{border-top:0;margin-top:0;padding-top:6px}
+.sd{font-style:italic;color:var(--muted)}
+.miss{color:var(--miss);text-decoration:underline wavy;text-underline-offset:4px}
+.hintw{color:var(--cue);font-weight:700}
+.veil{display:inline-block;height:.62em;border-radius:3px;background:var(--rule);vertical-align:baseline}
+.ln.cur .veil{background:color-mix(in srgb,var(--cue) 35%,transparent)}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--rule);padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
+.bar div{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.bar button{border:1px solid var(--rule);background:var(--bg);border-radius:10px;padding:14px 4px;font-weight:700;font-size:.98rem}
+.bar button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+#toast{position:fixed;left:14px;right:14px;bottom:96px;z-index:7;max-width:612px;margin:0 auto;background:var(--ink);color:var(--bg);border-radius:10px;padding:12px 14px;font-size:.95rem}
+.summary{margin-top:18px;border:1.5px solid var(--accent);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:12px;background:var(--surface)}
+.summary h3{font-family:var(--display);font-size:1.4rem;margin:0}
+.summary p{margin:0}
+.summary ul{margin:0;padding-left:1.1em;color:var(--muted);font-size:.95rem}
+.summary .row button{border:1px solid var(--rule);background:var(--bg);border-radius:10px;padding:12px 16px;font-weight:700}
+.summary .row button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+</style>
+</head>
+<body>
+
+<main id="setup" class="view">
+  <header class="mast">
+    <p class="eyebrow">Textlernhilfe fürs Theater</p>
+    <h1>Stich<span>wort</span></h1>
+    <p class="lede">Die App spricht die anderen Rollen, du sprichst deine. Sie hört zu und merkt sich, wo es hakt.</p>
+  </header>
+
+  <section class="step">
+    <h2>Dein Text</h2>
+    <p class="help">Ein Einsatz pro Zeile im Format <code>ROLLE: Text</code>. Was in Klammern steht, gilt als Regieanweisung und wird weder gesprochen noch abgefragt. Zeilen, die mit „Szene“ beginnen, teilen den Text in Szenen.</p>
+    <textarea id="text" spellcheck="false" aria-label="Stücktext"></textarea>
+    <div class="row">
+      <button id="pick" class="link" type="button">Textdatei laden</button>
+      <button id="example" class="link" type="button">Beispielszene laden</button>
+      <button id="clear" class="link" type="button">Feld leeren</button>
+      <input id="file" type="file" accept=".txt,text/plain" hidden>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2>Deine Rolle</h2>
+    <div id="roles" class="roles"></div>
+  </section>
+
+  <section class="step" id="scenesStep" hidden>
+    <h2>Szenen</h2>
+    <div class="row">
+      <button id="scMine" class="link" type="button">Alle mit mir</button>
+      <button id="scNone" class="link" type="button">Keine</button>
+    </div>
+    <div id="scenes" class="scenes"></div>
+  </section>
+
+  <section class="step">
+    <h2>So wird geprobt</h2>
+    <div class="opts">
+      <label class="opt" for="vis">Deine Zeilen auf dem Bildschirm
+        <select id="vis">
+          <option value="voll">Voller Text</option>
+          <option value="initialen">Nur Anfangsbuchstaben</option>
+          <option value="verdeckt">Verdeckt</option>
+        </select>
+      </label>
+      <label class="opt" for="cue">Die anderen Rollen
+        <select id="cue">
+          <option value="voll">Ganze Zeilen sprechen</option>
+          <option value="stichwort">Nur das Stichwort vor deinem Einsatz</option>
+        </select>
+      </label>
+      <label class="opt" for="tol">Wie genau muss es sitzen?
+        <select id="tol">
+          <option value="0.9">Streng (90 % der Wörter)</option>
+          <option value="0.75">Normal (75 %)</option>
+          <option value="0.6">Locker (60 %)</option>
+        </select>
+      </label>
+      <label class="opt" for="rate">Sprechtempo der anderen
+        <select id="rate">
+          <option value="0.85">Langsam</option>
+          <option value="1">Normal</option>
+          <option value="1.2">Zügig</option>
+        </select>
+      </label>
+      <label class="opt" for="mic">Kontrolle
+        <select id="mic">
+          <option value="1">Mikrofon hört zu</option>
+          <option value="0">Ohne Mikrofon, ich tippe selbst weiter</option>
+        </select>
+      </label>
+    </div>
+    <p id="support" class="note"></p>
+  </section>
+
+  <section class="step">
+    <h2>Stimmen der anderen</h2>
+    <label class="opt" for="vmode">Wer spricht?
+      <select id="vmode">
+        <option value="geraet">Die Stimme des Geräts (sofort da, klingt künstlich)</option>
+        <option value="gemini">Gemini-Stimmen (einmal erzeugen, bleiben gespeichert)</option>
+      </select>
+    </label>
+    <div id="gbox" class="sub" hidden>
+      <label class="opt" for="gkey">Dein Gemini-API-Schlüssel
+        <input id="gkey" type="password" autocomplete="off" spellcheck="false">
+      </label>
+      <p class="help">Der Schlüssel liegt nur in diesem Browser. Beim Erzeugen geht der Text der anderen Rollen an Google. Fertige Stimmen bleiben auf dem Gerät und brauchen danach kein Netz mehr.</p>
+      <label class="opt" for="gmodel">Modell
+        <select id="gmodel">
+          <option value="gemini-3.8-flash-tts">Flash TTS (klingt besser)</option>
+          <option value="gemini-3.8-flash-lite-tts">Flash-Lite TTS (schneller)</option>
+        </select>
+      </label>
+      <details>
+        <summary>Stimmen den Rollen zuweisen</summary>
+        <div id="vlist" class="vlist"></div>
+      </details>
+      <p id="gstat" class="help"></p>
+      <div class="meter"><div id="gfill"></div></div>
+      <div class="row">
+        <button id="ggen" class="sec" type="button">Fehlende Stimmen erzeugen</button>
+        <button id="gclear" class="link" type="button">Gespeicherte Stimmen löschen</button>
+      </div>
+      <p id="gmsg" class="note" hidden></p>
+    </div>
+  </section>
+
+  <div class="go">
+    <button id="start" class="big" type="button">Probe starten</button>
+  </div>
+</main>
+
+<div id="stage" class="view" hidden>
+  <header class="top">
+    <div class="toprow">
+      <button id="toSetup" class="ghost" type="button">Text</button>
+      <div class="status"><span id="dot" class="dot"></span><span id="statusText" aria-live="polite"></span></div>
+      <span id="progress" class="count"></span>
+    </div>
+    <div id="live" class="live" hidden>
+      <div class="meter"><div id="meterFill"></div><div id="meterTick"></div></div>
+      <p id="heard"></p>
+    </div>
+  </header>
+  <div id="script" class="script"></div>
+  <nav class="bar" aria-label="Probensteuerung">
+    <div>
+      <button id="bBack" type="button">Zurück</button>
+      <button id="bPause" type="button">Pause</button>
+      <button id="bHint" type="button">Hänger</button>
+      <button id="bNext" class="primary" type="button">Weiter</button>
+    </div>
+  </nav>
+  <div id="toast" role="status" hidden></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/*LOGIC-START*/
+// ---------- Text einlesen ----------
+var SUP_RE = /[¹²³⁰-⁹]+/g; // hochgestellte Fußnotenziffern
+var COLON_RE = /^\s*\[?([^:()\[\]]{1,32}?)\]?\s*(\([^)]*\))?\s*:\s*(.*)$/;
+var HEAD_RE = /^\s*([\p{Lu}\p{N}][\p{Lu}\p{N} .'\-]{1,31})\s*$/u;
+var SCENE_RE = /^\s*(?:\d+\.\s*)?(?:Szene|Akt)(?!\p{L}).{0,50}$/iu;
+var SENT_END = /[.!?…"“”»«]$/;
+var META = {ORT:1, BETEILIGTE:1, ROLLEN:1, PERSONEN:1, ZEIT:1, SZENE:1, AKT:1};
+
+function roleKey(name){ return name.trim().replace(/\s+/g,' ').toUpperCase(); }
+function splitRoles(name){ return name.split(/\s+(?:und|&|\+)\s+|\s*\/\s*/i).map(function(s){ return s.trim(); }).filter(Boolean); }
+function validName(name){
+  var n = name.trim();
+  return /\p{L}/u.test(n) && n.split(/\s+/).length <= 5;
+}
+function isUpper(name){ return name === name.toUpperCase(); }
+
+function normWord(w){
+  return w.toLowerCase().replace(/ß/g,'ss').replace(/[^\p{L}\p{N}]/gu,'');
+}
+function words(text){
+  return text.split(/\s+/).map(normWord).filter(Boolean);
+}
+// Zerlegt eine Zeile in Wörter, Satzzeichen und Regieanweisungen (alles in Klammern).
+function tokenize(text){
+  var out = [], depth = 0;
+  // "Wort(Anmerkung)" trennen, damit nur die Klammer als Regie zählt.
+  text.replace(/([^\s(\[])([(\[])/g, '$1 $2').replace(/([)\]])(\p{L})/gu, '$1 $2').split(/\s+/).filter(Boolean).forEach(function(raw){
+    var opens = (raw.match(/[(\[]/g)||[]).length;
+    var closes = (raw.match(/[)\]]/g)||[]).length;
+    var inDir = depth > 0 || opens > 0;
+    depth = Math.max(0, depth + opens - closes);
+    if(inDir){ out.push({raw:raw, kind:'dir', norm:''}); return; }
+    var norm = normWord(raw);
+    out.push({raw:raw, kind: norm ? 'word' : 'punct', norm:norm});
+  });
+  return out;
+}
+// "Szene 00110001 00110000" wird zu "Szene 10": Binärgruppen als ASCII lesen.
+function sceneLabel(t){
+  return t.trim().replace(/^(\S+)\s*:\s*/, '$1 ').replace(/[01]{8}(?:\s+[01]{8})*/g, function(m){
+    var s = m.split(/\s+/).map(function(b){ return String.fromCharCode(parseInt(b, 2)); }).join('');
+    return /^[\x20-\x7e]+$/.test(s) ? s : m;
+  });
+}
+
+function parseScript(raw){
+  var rows = raw.replace(/\r/g,'').replace(SUP_RE,'').split('\n');
+  var first = -1;
+  rows.forEach(function(row, i){ if(first < 0 && SCENE_RE.test(row)) first = i; });
+
+  // Durchgang 1: Wer kommt als Sprecher in Frage?
+  var colon = {}, head = {};
+  rows.forEach(function(row, i){
+    if(i < first || SCENE_RE.test(row)) return;
+    var m = row.match(COLON_RE);
+    if(m && validName(m[1])){
+      var k = roleKey(m[1]);
+      if(META[k]) return;
+      colon[k] = colon[k] || {n:0, upper:false};
+      colon[k].n++;
+      if(isUpper(m[1].trim())) colon[k].upper = true;
+      return;
+    }
+    m = row.match(HEAD_RE);
+    if(m && validName(m[1])){ var h = roleKey(m[1]); head[h] = (head[h]||0) + 1; }
+  });
+  // Eine Rolle ist, was GROSS geschrieben vor dem Doppelpunkt steht oder mindestens zweimal vorkommt.
+  var known = {};
+  Object.keys(colon).forEach(function(k){ if(colon[k].upper || colon[k].n >= 2) known[k] = true; });
+  Object.keys(head).forEach(function(k){ if(head[k] >= 2 || known[k]) known[k] = true; });
+  // Durchnummerierte Geschwister ("Stimme 3" neben "Stimme 1") und gemeinsame Einsätze ("A und B") zählen auch einmalig.
+  var stems = {};
+  Object.keys(known).forEach(function(k){ var m = k.match(/^(.*\S)\s+\d+$/); if(m) stems[m[1]] = true; });
+  Object.keys(colon).forEach(function(k){
+    var m = k.match(/^(.*\S)\s+\d+$/);
+    if(m && stems[m[1]]) known[k] = true;
+    var parts = splitRoles(k);
+    if(parts.length > 1 && parts.some(function(p){ return known[p]; })) known[k] = true;
+  });
+  var names = [];
+  Object.keys(known).forEach(function(k){ names.push(k); splitRoles(k).forEach(function(p){ names.push(p); }); });
+
+  // Durchgang 2: Zeilen zuordnen.
+  var out = [], scenes = [], labels = {}, cur = null, sc = -1;
+  function push(e){ e.scene = sc; out.push(e); return e; }
+  function speaker(name, text){
+    var parts = splitRoles(name.trim());
+    parts.forEach(function(p){ if(!labels[roleKey(p)]) labels[roleKey(p)] = p; });
+    return push({type:'line', label:name.trim().replace(/\s+/g,' '), roles:parts.map(roleKey), text:text});
+  }
+  rows.forEach(function(row){
+    var t = row.trim();
+    if(!t){ if(cur && cur.text) cur = null; return; }
+    if(SCENE_RE.test(t)){
+      sc = scenes.length;
+      scenes.push({label:sceneLabel(t), place:''});
+      push({type:'scene', text:scenes[sc].label});
+      cur = null; return;
+    }
+    if(first >= 0 && sc < 0){ push({type:'dir', text:t}); return; }
+    var m = row.match(COLON_RE);
+    if(m && validName(m[1])){
+      var k = roleKey(m[1]);
+      if(META[k]){
+        if(k === 'ORT' && sc >= 0 && !scenes[sc].place) scenes[sc].place = m[3].trim();
+        push({type:'dir', text:t}); cur = null; return;
+      }
+      if(known[k]){ cur = speaker(m[1], ((m[2] ? m[2] + ' ' : '') + m[3]).trim()); return; }
+    }
+    m = row.match(HEAD_RE);
+    if(m && validName(m[1]) && known[roleKey(m[1])]){ cur = speaker(m[1], ''); return; }
+    if(/^[(\[].*[)\]]$/.test(t)){ push({type:'dir', text:t}); return; }
+    // "TOM geht ab." ohne Doppelpunkt ist eine Regieanweisung, kein Text.
+    var up = t.toUpperCase();
+    if(names.some(function(n){ return up.indexOf(n + ' ') === 0; })){ push({type:'dir', text:t}); return; }
+    if(cur){
+      // Mitten im Satz umbrochen: anhängen. Neuer Absatz: eigener Abschnitt derselben Rolle.
+      if(out[out.length - 1] === cur && (!cur.text || !SENT_END.test(cur.text))){ cur.text += (cur.text ? ' ' : '') + t; return; }
+      cur = push({type:'line', label:cur.label, roles:cur.roles, text:t}); return;
+    }
+    push({type:'dir', text:t});
+  });
+
+  var roles = [], seen = {};
+  out.forEach(function(L){
+    if(L.type !== 'line') return;
+    L.tokens = tokenize(L.text);
+    L.target = L.tokens.filter(function(t){ return t.kind === 'word'; }).map(function(t){ return t.norm; });
+    L.spoken = L.tokens.filter(function(t){ return t.kind !== 'dir'; }).map(function(t){ return t.raw; }).join(' ');
+    L.style = L.tokens.filter(function(t){ return t.kind === 'dir'; }).map(function(t){ return t.raw; }).join(' ').replace(/[()\[\]]/g,'').trim();
+    if(!L.target.length){ L.type = 'dir'; L.text = L.label + (L.text ? ': ' + L.text : ''); return; }
+    // Reine Zahlen- oder Zeichenfolgen kann keine Spracherkennung prüfen.
+    L.typed = !L.target.some(function(w){ return /\p{L}/u.test(w); });
+    L.roles.forEach(function(k){
+      if(!seen[k]){ seen[k] = {name:k, label:labels[k] || k, count:0}; roles.push(seen[k]); }
+      seen[k].count++;
+    });
+  });
+  return {lines:out, roles:roles, scenes:scenes};
+}
+
+// ---------- Abgleich ----------
+function lev(a, b){
+  if(a === b) return 0;
+  var prev = [], i, j;
+  for(j = 0; j <= b.length; j++) prev[j] = j;
+  for(i = 1; i <= a.length; i++){
+    var cur = [i];
+    for(j = 1; j <= b.length; j++){
+      cur[j] = Math.min(prev[j] + 1, cur[j-1] + 1, prev[j-1] + (a[i-1] === b[j-1] ? 0 : 1));
+    }
+    prev = cur;
+  }
+  return prev[b.length];
+}
+// Kurze Wörter müssen exakt stimmen, längere dürfen ein bis zwei Buchstaben abweichen.
+function similar(a, b){
+  if(a === b) return true;
+  var n = Math.max(a.length, b.length);
+  var allowed = n <= 3 ? 0 : n <= 6 ? 1 : 2;
+  if(Math.abs(a.length - b.length) > allowed) return false;
+  return lev(a, b) <= allowed;
+}
+// Wie viele Sollwörter kommen in der richtigen Reihenfolge im Gehörten vor?
+function align(target, heard){
+  var n = target.length, m = heard.length, i, j;
+  var hits = new Array(n).fill(false);
+  if(!n) return {score:1, hits:hits};
+  var dp = [];
+  for(i = 0; i <= n; i++){ dp.push(new Array(m + 1).fill(0)); }
+  for(i = 1; i <= n; i++){
+    for(j = 1; j <= m; j++){
+      dp[i][j] = similar(target[i-1], heard[j-1]) ? dp[i-1][j-1] + 1 : Math.max(dp[i-1][j], dp[i][j-1]);
+    }
+  }
+  i = n; j = m;
+  while(i > 0 && j > 0){
+    if(similar(target[i-1], heard[j-1]) && dp[i][j] === dp[i-1][j-1] + 1){ hits[i-1] = true; i--; j--; }
+    else if(dp[i-1][j] >= dp[i][j-1]) i--;
+    else j--;
+  }
+  return {score: dp[n][m] / n, hits:hits};
+}
+function initialOf(raw){
+  return raw.replace(/^([^\p{L}\p{N}]*)([\p{L}\p{N}])([\p{L}\p{N}'’\-]*)(.*)$/u, function(_, a, b, c, d){
+    return a + b + (c ? '·'.repeat(Math.min(c.length, 3)) : '') + d;
+  });
+}
+
+// ---------- Gemini-Antwort lesen ----------
+// Sucht in der Antwort den letzten Audio-Block, egal wie tief er verschachtelt ist.
+function findAudio(o){
+  var found = null;
+  (function walk(x){
+    if(!x || typeof x !== 'object') return;
+    if(Array.isArray(x)){ x.forEach(walk); return; }
+    if(typeof x.data === 'string' && x.data.length > 64 &&
+       (x.type === 'audio' || /audio/i.test(x.mime_type || x.mimeType || ''))) found = x;
+    Object.keys(x).forEach(function(k){ walk(x[k]); });
+  })(o);
+  return found;
+}
+// Rohes PCM (24 kHz, mono, 16 Bit) bekommt einen WAV-Kopf, fertiges WAV bleibt, wie es ist.
+function wavBytes(bytes){
+  if(bytes.length > 12 && bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46) return bytes;
+  var out = new Uint8Array(44 + bytes.length), v = new DataView(out.buffer), rate = 24000;
+  function str(o, s){ for(var i = 0; i < s.length; i++) out[o + i] = s.charCodeAt(i); }
+  str(0, 'RIFF'); v.setUint32(4, 36 + bytes.length, true); str(8, 'WAVE'); str(12, 'fmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  str(36, 'data'); v.setUint32(40, bytes.length, true);
+  out.set(bytes, 44);
+  return out;
+}
+/*LOGIC-END*/
+
+// ---------- Oberfläche ----------
+var $ = function(id){ return document.getElementById(id); };
+var esc = function(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+var sleep = function(ms){ return new Promise(function(r){ setTimeout(r, ms); }); };
+var STORE = 'stichwort.v1', KEYSTORE = 'stichwort.key';
+var API = 'https://generativelanguage.googleapis.com/v1beta/interactions';
+var EXAMPLE = [
+  '1. Szene. Hinter der Bühne',
+  '',
+  '(Zehn Minuten vor der Premiere. Mira durchsucht den Requisitentisch.)',
+  '',
+  'MIRA: Hast du den Dolch gesehen?',
+  'TOM: Welchen Dolch?',
+  'MIRA: Den aus dem dritten Akt. Ohne Dolch kein Mord.',
+  'TOM (zögert): Der lag gestern noch auf dem Requisitentisch.',
+  'MIRA: Und heute?',
+  'TOM: Heute liegt da ein Brotmesser.',
+  'MIRA: Dann wird es eben ein sehr häuslicher Mord.',
+  'SOUFFLEUSE: Noch fünf Minuten bis zum Einlass!',
+  'TOM: Ich kann meinen Text noch nicht.',
+  'MIRA: Niemand kann seinen Text. Deshalb flüstert hier ja ständig jemand.'
+].join('\n');
+// Die 30 fertigen Gemini-Stimmen. Reihenfolge so gemischt, dass Nachbarn verschieden klingen.
+var GV = [
+  ['Charon','sachlich'],['Kore','fest'],['Puck','munter'],['Aoede','luftig'],['Algenib','rau'],['Leda','jugendlich'],
+  ['Gacrux','reif'],['Sulafat','warm'],['Fenrir','aufgeregt'],['Achernar','sanft'],['Orus','fest'],['Zephyr','hell'],
+  ['Enceladus','hauchig'],['Despina','weich'],['Iapetus','klar'],['Sadachbia','lebhaft'],['Schedar','ruhig'],['Autonoe','hell'],
+  ['Algieba','weich'],['Callirrhoe','gelassen'],['Rasalgethi','sachlich'],['Laomedeia','munter'],['Alnilam','fest'],['Erinome','klar'],
+  ['Umbriel','gelassen'],['Pulcherrima','direkt'],['Achird','freundlich'],['Zubenelgenubi','locker'],['Sadaltager','kundig'],['Vindemiatrix','sanft']
+];
+
+var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+var synth = window.speechSynthesis;
+var PITCH = [1, 0.7, 1.35, 0.85, 1.2, 0.6];
+
+var cfg = {role:'', vis:'initialen', cue:'voll', tol:0.75, rate:1, mic:true,
+           vmode:'geraet', model:'gemini-3.8-flash-tts', voices:{}, sceneSig:'', sceneOn:[]};
+var lines = [], roles = [], scenes = [], sceneSel = {}, lineState = {}, els = {};
+var run = null, activeRec = null, speakStop = null, speakSeq = 0, voices = [], wake = null, toastTimer = null;
+var haveKeys = {}, gen = null, clearArmed = 0;
+
+// ---------- Speicher ----------
+function loadStore(){
+  try{
+    var s = JSON.parse(localStorage.getItem(STORE) || 'null');
+    if(s){ $('text').value = s.text || ''; Object.assign(cfg, s.cfg || {}); }
+    $('gkey').value = localStorage.getItem(KEYSTORE) || '';
+  }catch(e){}
+  if(!$('text').value.trim()) $('text').value = EXAMPLE;
+  $('vis').value = cfg.vis; $('cue').value = cfg.cue;
+  $('tol').value = String(cfg.tol); $('rate').value = String(cfg.rate);
+  $('mic').value = cfg.mic ? '1' : '0';
+  $('vmode').value = cfg.vmode; $('gmodel').value = cfg.model;
+  $('gbox').hidden = cfg.vmode !== 'gemini';
+}
+function saveStore(){
+  cfg.sceneSig = cfg.role + '|' + scenes.length;
+  cfg.sceneOn = Object.keys(sceneSel).filter(function(k){ return sceneSel[k]; }).map(Number);
+  try{ localStorage.setItem(STORE, JSON.stringify({text:$('text').value, cfg:cfg})); }catch(e){}
+}
+var dbP = null;
+function db(){
+  if(dbP) return dbP;
+  dbP = new Promise(function(res){
+    try{
+      var rq = indexedDB.open('stichwort', 1);
+      rq.onupgradeneeded = function(){ rq.result.createObjectStore('audio'); };
+      rq.onsuccess = function(){ res(rq.result); };
+      rq.onerror = function(){ res(null); };
+    }catch(e){ res(null); }
+  });
+  return dbP;
+}
+function idb(mode, fn){
+  return db().then(function(d){
+    if(!d) return null;
+    return new Promise(function(res){
+      try{
+        var rq = fn(d.transaction('audio', mode).objectStore('audio'));
+        rq.onsuccess = function(){ res(rq.result === undefined ? true : rq.result); };
+        rq.onerror = function(){ res(null); };
+      }catch(e){ res(null); }
+    });
+  });
+}
+
+// ---------- Einrichtung ----------
+function isMine(idx){ var L = lines[idx]; return L.type === 'line' && L.roles.indexOf(cfg.role) >= 0; }
+function sceneLines(){
+  var a = [];
+  lines.forEach(function(L, i){ if(!scenes.length || sceneSel[L.scene]) a.push(i); });
+  return a;
+}
+function mineIn(sc){
+  var n = 0;
+  lines.forEach(function(L, i){ if(L.scene === sc && isMine(i)) n++; });
+  return n;
+}
+function defaultScenes(){
+  sceneSel = {};
+  scenes.forEach(function(_, i){ if(mineIn(i)) sceneSel[i] = true; });
+}
+function reparse(){
+  var p = parseScript($('text').value);
+  lines = p.lines; roles = p.roles; scenes = p.scenes;
+  if(!roles.some(function(r){ return r.name === cfg.role; })){
+    cfg.role = roles.length ? roles.slice().sort(function(a, b){ return b.count - a.count; })[0].name : '';
+  }
+  if(cfg.sceneSig === cfg.role + '|' + scenes.length && cfg.sceneOn){
+    sceneSel = {};
+    cfg.sceneOn.forEach(function(i){ if(i < scenes.length) sceneSel[i] = true; });
+  } else defaultScenes();
+  renderRoles(); renderScenes(); refresh();
+}
+function refresh(){
+  $('start').disabled = !sceneLines().some(isMine);
+  renderVoices(); voiceStatus();
+}
+function renderRoles(){
+  var box = $('roles');
+  if(!roles.length){
+    box.innerHTML = '<p class="help">Noch keine Rollen erkannt. Schreib jeden Einsatz als <code>ROLLE: Text</code>, den Rollennamen am besten in Großbuchstaben.</p>';
+    return;
+  }
+  box.innerHTML = roles.map(function(r, i){
+    return '<label class="role"><input type="radio" name="role" id="role' + i + '" value="' + esc(r.name) + '"' +
+      (r.name === cfg.role ? ' checked' : '') + '><span>' + esc(r.label) + ' <small>' + r.count +
+      (r.count === 1 ? ' Einsatz' : ' Einsätze') + '</small></span></label>';
+  }).join('');
+}
+function renderScenes(){
+  $('scenesStep').hidden = scenes.length < 2;
+  $('scenes').innerHTML = scenes.map(function(s, i){
+    var n = mineIn(i);
+    return '<label class="scene' + (n ? '' : ' none') + '"><input type="checkbox" id="sc' + i + '" data-sc="' + i + '"' +
+      (sceneSel[i] ? ' checked' : '') + '><span>' + esc(s.label + (s.place ? ' · ' + s.place : '')) + '</span><small>' +
+      (n ? n + (n === 1 ? ' Einsatz' : ' Einsätze') : 'ohne dich') + '</small></label>';
+  }).join('');
+}
+function supportNote(){
+  var parts = [];
+  if(!SR){
+    parts.push('Dieser Browser hat keine Spracherkennung. Üben geht trotzdem: Du sprichst und tippst selbst weiter. In Chrome auf Android hört die App mit.');
+    $('mic').value = '0'; $('mic').disabled = true;
+  } else if(!window.isSecureContext){
+    parts.push('Das Mikrofon geht nur über https, zum Beispiel auf GitHub Pages. Aus einer lokal geöffneten Datei heraus bleibt es stumm.');
+  } else {
+    parts.push('Spracherkennung ist verfügbar. Chrome schickt die Aufnahme zum Erkennen an Google und braucht dafür Internet.');
+  }
+  if(!synth) parts.push('Keine Sprachausgabe in diesem Browser: Ohne Gemini-Stimmen erscheinen die anderen Rollen nur als Text.');
+  $('support').textContent = parts.join(' ');
+}
+function loadVoices(){
+  if(!synth) return;
+  voices = synth.getVoices().filter(function(v){ return /^de([-_]|$)/i.test(v.lang); });
+}
+
+// ---------- Gemini-Stimmen ----------
+function roleVoice(role){
+  if(cfg.voices[role]) return cfg.voices[role];
+  var i = Math.max(0, roles.map(function(r){ return r.name; }).indexOf(role));
+  return GV[i % GV.length][0];
+}
+function voiceKey(L){ return roleVoice(L.roles[0]) + '|' + L.spoken; }
+function voiceJobs(){
+  var seen = {}, all = [];
+  sceneLines().forEach(function(idx){
+    var L = lines[idx];
+    if(L.type !== 'line' || isMine(idx)) return;
+    var k = voiceKey(L);
+    if(seen[k]) return;
+    seen[k] = true;
+    all.push({key:k, text:L.spoken, voice:roleVoice(L.roles[0]), style:L.style});
+  });
+  return all;
+}
+function renderVoices(){
+  var present = {};
+  sceneLines().forEach(function(idx){ var L = lines[idx]; if(L.type === 'line' && !isMine(idx)) present[L.roles[0]] = true; });
+  var list = roles.filter(function(r){ return present[r.name]; });
+  $('vlist').innerHTML = list.map(function(r, i){
+    var v = roleVoice(r.name);
+    return '<label for="rv' + i + '">' + esc(r.label) + '</label><select id="rv' + i + '" data-role="' + esc(r.name) + '">' +
+      GV.map(function(g){ return '<option value="' + g[0] + '"' + (g[0] === v ? ' selected' : '') + '>' + g[0] + ' · ' + g[1] + '</option>'; }).join('') +
+      '</select>';
+  }).join('') || '<p class="help">Keine anderen Rollen in der Auswahl.</p>';
+}
+function voiceStatus(){
+  var all = voiceJobs(), have = all.filter(function(j){ return haveKeys[j.key]; }).length;
+  $('gstat').textContent = all.length
+    ? have + ' von ' + all.length + ' Zeilen der anderen Rollen haben eine Gemini-Stimme. Der Rest kommt von der Gerätestimme.'
+    : 'In der Auswahl spricht außer dir niemand.';
+  $('gfill').style.width = all.length ? Math.round(have / all.length * 100) + '%' : '0';
+  $('gfill').className = all.length && have === all.length ? 'ok' : '';
+}
+function genMsg(text){ $('gmsg').textContent = text; $('gmsg').hidden = !text; }
+async function synthLine(job, key, withStyle){
+  var part = {type:'text', text:job.text};
+  if(withStyle && job.style) part.annotations = [{type:'speech_metadata', style:job.style}];
+  var body = {
+    model: cfg.model,
+    input: [{type:'user_input', content:[part]}],
+    response_format: {type:'audio'},
+    generation_config: {speech_config:[{voice:job.voice}]}
+  };
+  var resp = await fetch(API, {
+    method:'POST',
+    headers:{'Content-Type':'application/json', 'x-goog-api-key':key},
+    body:JSON.stringify(body)
+  });
+  var raw = await resp.text(), json = null;
+  try{ json = JSON.parse(raw); }catch(e){}
+  if(!resp.ok){
+    var err = new Error((json && json.error && json.error.message) || raw.slice(0, 240) || 'ohne Meldung');
+    err.status = resp.status;
+    err.retry = parseFloat(resp.headers.get('retry-after')) || 0;
+    throw err;
+  }
+  var a = findAudio(json);
+  if(!a){ var e2 = new Error('Die Antwort enthielt kein Audio: ' + raw.slice(0, 160)); e2.status = 0; throw e2; }
+  var bin = atob(a.data), bytes = new Uint8Array(bin.length);
+  for(var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Blob([wavBytes(bytes)], {type:'audio/wav'});
+}
+async function generateVoices(){
+  if(gen){ gen.cancel = true; genMsg('Wird nach der laufenden Zeile angehalten …'); return; }
+  var key = $('gkey').value.trim();
+  if(!key){ genMsg('Trag zuerst deinen Gemini-API-Schlüssel ein.'); $('gkey').focus(); return; }
+  var jobs = voiceJobs().filter(function(j){ return !haveKeys[j.key]; });
+  if(!jobs.length){ genMsg('Alle Zeilen der Auswahl haben schon eine Stimme.'); return; }
+  var me = gen = {cancel:false};
+  $('ggen').textContent = 'Anhalten';
+  lockScreen();
+  var gap = 4000, done = 0, stopText = '';
+  for(var i = 0; i < jobs.length && !me.cancel; i++){
+    var job = jobs[i], tries = 0, style = true;
+    while(!me.cancel){
+      genMsg('Erzeuge Zeile ' + (done + 1) + ' von ' + jobs.length + '. Bitte die App offen lassen.');
+      try{
+        var blob = await synthLine(job, key, style);
+        var ok = await idb('readwrite', function(s){ return s.put(blob, job.key); });
+        if(!ok){ stopText = 'Der Browser lässt das Speichern nicht zu (IndexedDB). Im privaten Modus geht das nicht.'; break; }
+        haveKeys[job.key] = true; done++; voiceStatus();
+        break;
+      }catch(e){
+        if(e.status === 400 && style && job.style){ style = false; continue; } // Regieanweisung als Stilhinweis abgelehnt: ohne versuchen
+        if((e.status === 429 || e.status >= 500) && tries < 3){
+          tries++; gap = Math.min(25000, gap * 2);
+          var waitS = Math.max(e.retry || 0, 30 * tries);
+          for(var s = waitS; s > 0 && !me.cancel; s--){
+            genMsg('Google bremst gerade (' + e.status + '). Nächster Versuch in ' + s + ' s. ' + done + ' Zeilen sind fertig.');
+            await sleep(1000);
+          }
+          continue;
+        }
+        stopText = e.status === 429
+          ? 'Limit von Google erreicht. Später weitermachen: fertige Zeilen bleiben gespeichert. Meldung: ' + e.message
+          : e.status
+            ? 'Google meldet Fehler ' + e.status + ': ' + e.message
+            : 'Keine Verbindung oder unerwartete Antwort: ' + e.message;
+        break;
+      }
+    }
+    if(stopText) break;
+    if(i < jobs.length - 1 && !me.cancel) await sleep(gap);
+  }
+  gen = null;
+  $('ggen').textContent = 'Fehlende Stimmen erzeugen';
+  if(!run) unlockScreen();
+  voiceStatus();
+  genMsg(stopText ? stopText + ' (' + done + ' neu gespeichert)' :
+    done + (done === 1 ? ' Zeile' : ' Zeilen') + ' neu gespeichert' + (me.cancel ? ', angehalten.' : '.'));
+}
+
+// ---------- Sprachausgabe ----------
+function wait(ms){
+  return new Promise(function(res){
+    var t = setTimeout(done, ms);
+    function done(){ clearTimeout(t); speakStop = null; res(); }
+    speakStop = done;
+  });
+}
+function lastWords(text){
+  var w = text.split(' ');
+  return w.length > 6 ? w.slice(-6).join(' ') : text;
+}
+function speakLine(L, short){
+  var k = voiceKey(L), seq = speakSeq;
+  if(cfg.vmode === 'gemini' && haveKeys[k]){
+    return idb('readonly', function(s){ return s.get(k); }).then(function(blob){
+      if(seq !== speakSeq) return;
+      if(blob && blob.size) return playBlob(blob, short);
+      return speakDevice(short ? lastWords(L.spoken) : L.spoken, L.roles[0]);
+    });
+  }
+  return speakDevice(short ? lastWords(L.spoken) : L.spoken, L.roles[0]);
+}
+function playBlob(blob, short){
+  return new Promise(function(res){
+    var url = URL.createObjectURL(blob), a = new Audio(url), fin = false, timer = null;
+    function finish(){
+      if(fin) return;
+      fin = true; clearTimeout(timer);
+      try{ a.pause(); }catch(e){}
+      URL.revokeObjectURL(url); speakStop = null; res();
+    }
+    a.playbackRate = cfg.rate;
+    a.onended = finish; a.onerror = finish;
+    a.onloadedmetadata = function(){
+      var d = isFinite(a.duration) ? a.duration : 30;
+      // Stichwort-Modus: nur das Ende der Aufnahme abspielen.
+      if(short && d > 3.2){ try{ a.currentTime = d - 2.8; }catch(e){} }
+      clearTimeout(timer);
+      timer = setTimeout(finish, d * 1000 / cfg.rate + 3000);
+    };
+    timer = setTimeout(finish, 60000);
+    speakStop = finish;
+    var p = a.play();
+    if(p && p.catch) p.catch(finish);
+  });
+}
+function speakDevice(text, role){
+  if(!synth) return wait(700 + text.length * 55);
+  return new Promise(function(res){
+    var parts = text.match(/[^.!?…]+[.!?…]*\s*/g) || [text];
+    var i = 0, finished = false, timer = null;
+    var others = roles.map(function(r){ return r.name; }).filter(function(n){ return n !== cfg.role; });
+    var slot = Math.max(0, others.indexOf(role));
+    function finish(){
+      if(finished) return;
+      finished = true; clearTimeout(timer); speakStop = null; res();
+    }
+    function next(){
+      if(finished) return;
+      clearTimeout(timer);
+      var part = '';
+      while(i < parts.length && !part) part = parts[i++].trim();
+      if(!part) return finish();
+      var u = new SpeechSynthesisUtterance(part);
+      var used = false;
+      var onward = function(){ if(used) return; used = true; next(); };
+      u.lang = 'de-DE';
+      if(voices.length) u.voice = voices[slot % voices.length];
+      u.rate = cfg.rate;
+      u.pitch = PITCH[slot % PITCH.length];
+      u.onend = onward; u.onerror = onward;
+      speakDevice.keep = u; // sonst räumt Chrome die Äußerung weg, bevor onend feuert
+      // Manche Android-Versionen melden das Ende nie: Notausgang nach geschätzter Sprechdauer.
+      timer = setTimeout(onward, 2500 + part.length * 110 / cfg.rate);
+      try{ synth.speak(u); }catch(e){ onward(); }
+    }
+    speakStop = function(){ try{ synth.cancel(); }catch(e){} finish(); };
+    try{ if(synth.speaking || synth.pending) synth.cancel(); }catch(e){}
+    next();
+  });
+}
+function stopSpeak(){ speakSeq++; if(speakStop) speakStop(); }
+
+// ---------- Spracherkennung ----------
+function stopRec(){
+  if(!activeRec) return;
+  var r = activeRec; activeRec = null;
+  r.onresult = r.onend = r.onerror = null;
+  try{ r.abort(); }catch(e){}
+}
+function check(text){
+  var L = lines[run.curIdx];
+  var h = words(text);
+  if(h.length > 300) h = h.slice(-300);
+  return align(L.target, h);
+}
+function listen(tok){
+  var r = run, rec;
+  try{ rec = new SR(); }catch(e){ return micFail('Die Spracherkennung ließ sich nicht starten.'); }
+  activeRec = rec;
+  rec.lang = 'de-DE'; rec.continuous = false; rec.interimResults = true; rec.maxAlternatives = 3;
+  var gotFinal = false, interim = '', err = '';
+  var alive = function(){ return run === r && r.tok === tok && r.phase === 'listening' && activeRec === rec; };
+  rec.onresult = function(e){
+    if(!alive()) return;
+    interim = '';
+    for(var i = e.resultIndex; i < e.results.length; i++){
+      var res = e.results[i];
+      if(res.isFinal){
+        var best = '', bestScore = -1;
+        for(var a = 0; a < res.length; a++){
+          var sc = check(r.heard + ' ' + res[a].transcript).score;
+          if(sc > bestScore){ bestScore = sc; best = res[a].transcript; }
+        }
+        r.heard = (r.heard + ' ' + best).trim();
+        gotFinal = true;
+      } else {
+        interim += ' ' + res[0].transcript;
+      }
+    }
+    var liveText = (r.heard + ' ' + interim).trim();
+    showLive(liveText, check(liveText).score);
+    if(gotFinal){
+      var f = check(r.heard);
+      if(f.score >= cfg.tol) pass(f);
+    }
+  };
+  rec.onerror = function(e){ err = e.error; };
+  rec.onend = function(){
+    if(!alive()) return;
+    activeRec = null;
+    if(err === 'not-allowed' || err === 'service-not-allowed') return micFail('Kein Zugriff aufs Mikrofon.');
+    if(err === 'network') return micFail('Die Spracherkennung erreicht ihren Server nicht.');
+    if(err === 'language-not-supported') return micFail('Deutsch wird von dieser Spracherkennung nicht unterstützt.');
+    // Android liefert manchmal kein abschließendes Ergebnis: dann zählt der letzte Zwischenstand.
+    if(!gotFinal && interim.trim()){
+      r.heard = (r.heard + ' ' + interim).trim(); gotFinal = true;
+      var f = check(r.heard);
+      if(f.score >= cfg.tol) return pass(f);
+    }
+    if(!gotFinal){
+      r.silent++;
+      if(r.silent === 1 && r.hint === 0) giveHint();
+      if(r.silent >= 3) return pauseRun('Pause nach längerer Stille');
+    } else {
+      r.silent = 0;
+    }
+    setTimeout(function(){ if(run === r && r.tok === tok && r.phase === 'listening') listen(tok); }, 200);
+  };
+  try{ rec.start(); }
+  catch(e){
+    activeRec = null;
+    setTimeout(function(){ if(run === r && r.tok === tok && r.phase === 'listening') listen(tok); }, 400);
+  }
+}
+function micFail(msg){
+  stopRec();
+  run.useMic = false;
+  $('live').hidden = true;
+  toast(msg + ' Es geht ohne Mikrofon weiter: Sprich deine Zeile und tippe auf Weiter.');
+  setStatus('listening', 'Du bist dran. Danach auf Weiter tippen');
+}
+
+// ---------- Probenablauf ----------
+function state(idx){ return lineState[idx] || (lineState[idx] = {done:false, hits:null, hint:false, skipped:false}); }
+function flagged(idx){ var s = lineState[idx]; return !!s && (s.hint || s.skipped); }
+
+async function startRun(queue){
+  saveStore();
+  if(gen) gen.cancel = true;
+  var useMic = !!SR && cfg.mic && window.isSecureContext;
+  // Sprachausgabe noch im Tipp freischalten, bevor irgendetwas abgewartet wird.
+  if(synth){
+    try{ var u = new SpeechSynthesisUtterance(' '); u.volume = 0; synth.speak(u); }catch(e){}
+  }
+  var note = '';
+  if(useMic && navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+    try{
+      var s = await navigator.mediaDevices.getUserMedia({audio:true});
+      s.getTracks().forEach(function(t){ t.stop(); });
+    }catch(e){
+      useMic = false;
+      note = 'Kein Zugriff aufs Mikrofon. Es geht ohne weiter: Sprich deine Zeile und tippe auf Weiter.';
+    }
+  }
+  var shown = sceneLines();
+  if(!queue){ lineState = {}; queue = shown.slice(); }
+  run = {queue:queue, inQueue:{}, shown:shown, pos:0, tok:0, phase:'idle', curIdx:-1, heard:'', hint:0, silent:0, useMic:useMic};
+  queue.forEach(function(i){ run.inQueue[i] = true; });
+  $('setup').hidden = true; $('stage').hidden = false;
+  $('meterTick').style.left = (cfg.tol * 100) + '%';
+  buildScript();
+  window.scrollTo(0, 0);
+  lockScreen();
+  if(note) toast(note);
+  step();
+}
+function buildScript(){
+  var box = $('script');
+  box.innerHTML = '';
+  els = {};
+  run.shown.forEach(function(idx){
+    var L = lines[idx], el;
+    if(L.type === 'line'){
+      el = document.createElement('button');
+      el.type = 'button';
+      el.dataset.idx = idx;
+    } else {
+      el = document.createElement('div');
+      el.className = L.type === 'scene' ? 'sc' : 'dir';
+      el.textContent = L.text;
+    }
+    box.appendChild(el);
+    els[idx] = el;
+  });
+  run.shown.forEach(paintLine);
+}
+function paintLine(idx){
+  var L = lines[idx], el = els[idx];
+  if(!el || L.type !== 'line') return;
+  var mine = isMine(idx), cur = run && run.curIdx === idx && run.phase !== 'done';
+  el.className = 'ln' + (mine ? ' mine' : '') + (cur ? ' cur' : '') +
+    (run && !run.inQueue[idx] ? ' off' : '') + (mine && flagged(idx) ? ' flag' : '');
+  el.innerHTML = '<span class="who">' + esc(L.label) + (mine ? ' · du' : '') + '</span><span class="txt">' +
+    (mine ? mineHTML(idx, cur) : otherHTML(L)) + '</span>';
+}
+function otherHTML(L){
+  return L.tokens.map(function(t){
+    return t.kind === 'dir' ? '<span class="sd">' + esc(t.raw) + '</span>' : esc(t.raw);
+  }).join(' ');
+}
+function mineHTML(idx, cur){
+  var L = lines[idx], st = lineState[idx], k = 0;
+  var reveal = (st && st.done) || L.typed;
+  return L.tokens.map(function(t){
+    if(t.kind === 'dir') return '<span class="sd">' + esc(t.raw) + '</span>';
+    if(t.kind === 'punct') return esc(t.raw);
+    var n = k++;
+    if(reveal){
+      return st && st.hits && !st.hits[n] ? '<span class="miss">' + esc(t.raw) + '</span>' : esc(t.raw);
+    }
+    if(cur && (run.hint >= 2 || (run.hint === 1 && n < 3))) return '<span class="hintw">' + esc(t.raw) + '</span>';
+    if(cfg.vis === 'voll') return esc(t.raw);
+    if(cfg.vis === 'initialen') return esc(initialOf(t.raw));
+    return '<span class="veil" style="width:' + Math.min(6, Math.max(1.2, t.norm.length * 0.55)).toFixed(1) + 'em"></span>';
+  }).join(' ');
+}
+function setStatus(kind, text){
+  $('dot').className = 'dot ' + kind;
+  $('statusText').textContent = text;
+}
+function showLive(text, score){
+  var pct = Math.round(Math.min(1, score) * 100);
+  $('meterFill').style.width = pct + '%';
+  $('meterFill').className = score >= cfg.tol ? 'ok' : '';
+  $('heard').textContent = text ? 'Gehört: ' + text : 'Noch nichts gehört';
+}
+function updateProgress(){
+  var r = run, total = 0, at = 0;
+  r.queue.forEach(function(idx, p){ if(isMine(idx)){ total++; if(p <= r.pos) at++; } });
+  $('progress').textContent = total ? Math.min(at, total) + ' / ' + total : '';
+}
+function nextSpokenIsMine(pos){
+  for(var p = pos + 1; p < run.queue.length; p++){
+    if(lines[run.queue[p]].type === 'line') return isMine(run.queue[p]);
+  }
+  return false;
+}
+function step(){
+  var r = run; if(!r) return;
+  var tok = ++r.tok;
+  stopRec();
+  while(r.pos < r.queue.length && lines[r.queue[r.pos]].type !== 'line') r.pos++;
+  if(r.pos >= r.queue.length) return finish();
+  var idx = r.queue[r.pos], L = lines[idx], prev = r.curIdx;
+  if(idx !== r.curIdx){ r.curIdx = idx; r.heard = ''; r.hint = 0; }
+  r.silent = 0;
+  $('bPause').textContent = 'Pause';
+  var sum = $('summary'); if(sum) sum.remove();
+  if(isMine(idx)){
+    var st = state(idx); st.done = false; st.hits = null; st.skipped = false;
+    var byEar = r.useMic && !L.typed;
+    r.phase = 'listening';
+    if(prev >= 0) paintLine(prev);
+    paintLine(idx);
+    $('live').hidden = !byEar;
+    showLive(r.heard, r.heard ? check(r.heard).score : 0);
+    setStatus('listening', byEar ? 'Du bist dran. Ich höre zu'
+      : L.typed ? 'Du bist dran. Zeichenfolge, danach auf Weiter tippen' : 'Du bist dran. Danach auf Weiter tippen');
+    if(byEar) listen(tok);
+  } else {
+    r.phase = 'speaking';
+    if(prev >= 0) paintLine(prev);
+    paintLine(idx);
+    $('live').hidden = true;
+    var short = false;
+    if(cfg.cue === 'stichwort'){
+      if(!nextSpokenIsMine(r.pos)){
+        setStatus('speaking', L.label);
+        setTimeout(function(){ if(run === r && r.tok === tok){ r.pos++; step(); } }, 150);
+        updateProgress(); follow(idx);
+        return;
+      }
+      short = true;
+    }
+    setStatus('speaking', L.label + ' spricht');
+    speakLine(L, short).then(function(){ if(run === r && r.tok === tok){ r.pos++; step(); } });
+  }
+  updateProgress();
+  follow(idx);
+}
+function follow(idx){
+  var el = els[idx];
+  if(el && el.scrollIntoView){
+    var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    el.scrollIntoView({block:'center', behavior: calm ? 'auto' : 'smooth'});
+  }
+}
+function pass(f){
+  var r = run, tok = r.tok, idx = r.curIdx;
+  r.phase = 'feedback';
+  stopRec();
+  var st = state(idx); st.done = true; st.hits = f.hits; st.score = f.score;
+  paintLine(idx);
+  showLive(r.heard, f.score);
+  setStatus('ok', f.score >= 0.999 ? 'Sitzt' : 'Sitzt, zu ' + Math.round(f.score * 100) + ' %');
+  setTimeout(function(){ if(run === r && r.tok === tok){ r.pos++; step(); } }, 800);
+}
+function giveHint(){
+  var r = run;
+  if(!r || r.curIdx < 0 || !isMine(r.curIdx) || r.phase === 'done' || state(r.curIdx).done) return;
+  r.hint = Math.min(2, r.hint + 1);
+  state(r.curIdx).hint = true;
+  paintLine(r.curIdx);
+}
+function halt(){
+  run.tok++;
+  stopRec(); stopSpeak();
+}
+function pauseRun(label){
+  var r = run; if(!r || r.phase === 'done') return;
+  halt();
+  r.phase = 'paused';
+  setStatus('', label || 'Pause');
+  $('bPause').textContent = 'Weiter proben';
+}
+function onPause(){
+  if(!run || run.phase === 'done') return;
+  if(run.phase === 'paused') step(); else pauseRun();
+}
+function onNext(){
+  var r = run; if(!r || r.phase === 'done') return;
+  halt();
+  var idx = r.curIdx;
+  if(idx >= 0 && isMine(idx) && !state(idx).done){
+    var st = state(idx);
+    st.done = true; st.hits = null; st.skipped = r.useMic && !lines[idx].typed;
+    paintLine(idx);
+  }
+  r.pos++;
+  step();
+}
+function onBack(){
+  var r = run; if(!r) return;
+  halt();
+  var p = Math.min(r.pos, r.queue.length) - 1;
+  while(p > 0 && lines[r.queue[p]].type !== 'line') p--;
+  r.pos = Math.max(0, p);
+  step();
+}
+function jump(idx){
+  var r = run; if(!r || lines[idx].type !== 'line') return;
+  halt();
+  if(!r.inQueue[idx]){
+    r.queue = r.shown.slice(); r.inQueue = {};
+    r.queue.forEach(function(i){ r.inQueue[i] = true; });
+    r.shown.forEach(paintLine);
+  }
+  r.pos = r.queue.indexOf(idx);
+  step();
+}
+function finish(){
+  var r = run;
+  r.phase = 'done';
+  var prev = r.curIdx; r.curIdx = -1;
+  if(prev >= 0) paintLine(prev);
+  $('live').hidden = true;
+  setStatus('ok', 'Durchlauf zu Ende');
+  unlockScreen();
+  var mine = r.queue.filter(isMine);
+  var weak = mine.filter(flagged);
+  var clean = mine.length - weak.length;
+  var box = document.createElement('div');
+  box.id = 'summary'; box.className = 'summary';
+  var html = '<h3>' + (weak.length ? 'Fast.' : 'Vorhang.') + '</h3><p>' + clean + ' von ' + mine.length +
+    (mine.length === 1 ? ' Einsatz' : ' Einsätzen') + ' ohne Hänger.</p>';
+  if(weak.length){
+    html += '<ul>' + weak.slice(0, 8).map(function(idx){
+      var w = lines[idx].spoken.split(' ');
+      return '<li>' + esc(w.slice(0, 7).join(' ')) + (w.length > 7 ? ' …' : '') + '</li>';
+    }).join('') + (weak.length > 8 ? '<li>und ' + (weak.length - 8) + ' weitere</li>' : '') + '</ul>';
+  }
+  html += '<div class="row">' + (weak.length ? '<button id="sWeak" class="primary" type="button">Nur die Hänger wiederholen</button>' : '') +
+    '<button id="sAgain" type="button"' + (weak.length ? '' : ' class="primary"') + '>Von vorn</button></div>';
+  box.innerHTML = html;
+  $('script').appendChild(box);
+  box.scrollIntoView({block:'center'});
+  if(weak.length) $('sWeak').onclick = function(){
+    var q = [];
+    weak.forEach(function(idx){
+      var p = idx - 1;
+      while(p >= 0 && lines[p].type !== 'line') p--;
+      if(p >= 0 && !isMine(p) && lines[p].scene === lines[idx].scene && q.indexOf(p) < 0) q.push(p);
+      q.push(idx);
+      lineState[idx] = {done:false, hits:null, hint:false, skipped:false};
+    });
+    startRun(q);
+  };
+  $('sAgain').onclick = function(){ startRun(null); };
+}
+function toSetup(){
+  if(run){ halt(); run = null; }
+  unlockScreen();
+  $('stage').hidden = true; $('setup').hidden = false;
+  window.scrollTo(0, 0);
+}
+function toast(msg){
+  var t = $('toast');
+  t.textContent = msg; t.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.hidden = true; }, 7000);
+}
+function lockScreen(){
+  if(!navigator.wakeLock) return;
+  navigator.wakeLock.request('screen').then(function(w){ wake = w; }).catch(function(){});
+}
+function unlockScreen(){
+  if(gen) return;
+  if(wake){ try{ wake.release(); }catch(e){} wake = null; }
+}
+
+// ---------- Verdrahtung ----------
+var parseTimer = null;
+function textChanged(){ reparse(); saveStore(); }
+$('text').addEventListener('input', function(){
+  clearTimeout(parseTimer);
+  parseTimer = setTimeout(function(){ parseTimer = null; textChanged(); }, 300);
+});
+$('example').onclick = function(){ $('text').value = EXAMPLE; textChanged(); };
+$('clear').onclick = function(){ $('text').value = ''; textChanged(); $('text').focus(); };
+$('pick').onclick = function(){ $('file').click(); };
+$('file').onchange = function(){
+  var f = this.files && this.files[0];
+  if(!f) return;
+  var rd = new FileReader();
+  rd.onload = function(){ $('text').value = String(rd.result || ''); textChanged(); };
+  rd.readAsText(f);
+  this.value = '';
+};
+$('roles').addEventListener('change', function(e){
+  if(e.target.name !== 'role') return;
+  cfg.role = e.target.value;
+  defaultScenes(); renderScenes(); refresh(); saveStore();
+});
+$('scenes').addEventListener('change', function(e){
+  if(e.target.dataset.sc === undefined) return;
+  sceneSel[e.target.dataset.sc] = e.target.checked;
+  refresh(); saveStore();
+});
+$('scMine').onclick = function(){ defaultScenes(); renderScenes(); refresh(); saveStore(); };
+$('scNone').onclick = function(){ sceneSel = {}; renderScenes(); refresh(); saveStore(); };
+$('vis').onchange = function(){ cfg.vis = this.value; saveStore(); };
+$('cue').onchange = function(){ cfg.cue = this.value; saveStore(); };
+$('tol').onchange = function(){ cfg.tol = parseFloat(this.value); saveStore(); };
+$('rate').onchange = function(){ cfg.rate = parseFloat(this.value); saveStore(); };
+$('mic').onchange = function(){ cfg.mic = this.value === '1'; saveStore(); };
+$('vmode').onchange = function(){ cfg.vmode = this.value; $('gbox').hidden = cfg.vmode !== 'gemini'; saveStore(); };
+$('gmodel').onchange = function(){ cfg.model = this.value; saveStore(); };
+$('gkey').onchange = function(){ try{ localStorage.setItem(KEYSTORE, this.value.trim()); }catch(e){} };
+$('vlist').addEventListener('change', function(e){
+  if(!e.target.dataset.role) return;
+  cfg.voices[e.target.dataset.role] = e.target.value;
+  voiceStatus(); saveStore();
+});
+$('ggen').onclick = generateVoices;
+$('gclear').onclick = function(){
+  var btn = this;
+  if(Date.now() - clearArmed > 4000){
+    clearArmed = Date.now(); btn.textContent = 'Wirklich alle löschen? Nochmal tippen';
+    setTimeout(function(){ btn.textContent = 'Gespeicherte Stimmen löschen'; }, 4000);
+    return;
+  }
+  clearArmed = 0; btn.textContent = 'Gespeicherte Stimmen löschen';
+  idb('readwrite', function(s){ return s.clear(); }).then(function(){ haveKeys = {}; voiceStatus(); genMsg('Alle gespeicherten Stimmen sind gelöscht.'); });
+};
+$('start').onclick = function(){
+  if(parseTimer){ clearTimeout(parseTimer); parseTimer = null; reparse(); }
+  if(sceneLines().some(isMine)) startRun(null);
+};
+$('toSetup').onclick = toSetup;
+$('bPause').onclick = onPause;
+$('bNext').onclick = onNext;
+$('bBack').onclick = onBack;
+$('bHint').onclick = giveHint;
+$('script').addEventListener('click', function(e){
+  var el = e.target.closest ? e.target.closest('.ln') : null;
+  if(el && el.dataset.idx !== undefined) jump(parseInt(el.dataset.idx, 10));
+});
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden){ if(run && run.phase !== 'paused' && run.phase !== 'done') pauseRun('Pause, die App war im Hintergrund'); }
+  else if((run && run.phase !== 'done') || gen) lockScreen();
+});
+if(synth){
+  loadVoices();
+  if(synth.addEventListener) synth.addEventListener('voiceschanged', loadVoices);
+}
+loadStore();
+supportNote();
+reparse();
+idb('readonly', function(s){ return s.getAllKeys(); }).then(function(keys){
+  (Array.isArray(keys) ? keys : []).forEach(function(k){ haveKeys[k] = true; });
+  voiceStatus();
+});
+
+// Für Tests von außen erreichbar, ohne Einfluss auf die App.
+window.__stichwort = {parseScript:parseScript, align:align, words:words, getRun:function(){ return run; }, getState:function(){ return lineState; }};
+})();
+</script>
+</body>
+</html>
